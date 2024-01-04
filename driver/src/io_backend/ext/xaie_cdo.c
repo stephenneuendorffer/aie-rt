@@ -100,30 +100,6 @@ static AieRC XAie_CdoIO_Init(XAie_DevInst *DevInst)
 /*****************************************************************************/
 /**
 *
-* This is the memory IO function to write 32bit data to the specified address.
-*
-* @param	IOInst: IO instance pointer
-* @param	RegOff: Register offset to read from.
-* @param	Data: 32-bit data to be written.
-*
-* @return	None.
-*
-* @note		None.
-* @note		Internal only.
-*
-*******************************************************************************/
-static AieRC XAie_CdoIO_Write32(void *IOInst, u64 RegOff, u32 Value)
-{
-	XAie_CdoIO *CdoIOInst = (XAie_CdoIO *)IOInst;
-
-	cdo_Write32(CdoIOInst->BaseAddr + RegOff, Value);
-
-	return XAIE_OK;
-}
-
-/*****************************************************************************/
-/**
-*
 * This is the memory IO function to read 32bit data from the specified address.
 *
 * @param	IOInst: IO instance pointer
@@ -142,163 +118,6 @@ static AieRC XAie_CdoIO_Read32(void *IOInst, u64 RegOff, u32 *Data)
 	(void)IOInst;
 	(void)RegOff;
 	*Data = 0U;
-	return XAIE_OK;
-}
-
-/*****************************************************************************/
-/**
-*
-* This is the memory IO function to write masked 32bit data to the specified
-* address.
-*
-* @param	IOInst: IO instance pointer
-* @param	RegOff: Register offset to read from.
-* @param	Mask: Mask to be applied to Data.
-* @param	Value: 32-bit data to be written.
-*
-* @return	None.
-*
-* @note		None.
-* @note		Internal only.
-*
-*******************************************************************************/
-static AieRC XAie_CdoIO_MaskWrite32(void *IOInst, u64 RegOff, u32 Mask,
-		u32 Value)
-{
-	XAie_CdoIO *CdoIOInst = (XAie_CdoIO *)IOInst;
-	cdo_MaskWrite32(CdoIOInst->BaseAddr + RegOff, Mask, Value);
-
-	return XAIE_OK;
-}
-
-/*****************************************************************************/
-/**
-*
-* This is the memory IO function to mask poll an address for a value.
-*
-* @param	IOInst: IO instance pointer
-* @param	RegOff: Register offset to read from.
-* @param	Mask: Mask to be applied to Data.
-* @param	Value: 32-bit value to poll for
-* @param	TimeOutUs: Timeout in micro seconds.
-*
-* @return	XAIE_OK or XAIE_ERR.
-*
-* @note		None.
-* @note		Internal only.
-*
-*******************************************************************************/
-static AieRC XAie_CdoIO_MaskPoll(void *IOInst, u64 RegOff, u32 Mask, u32 Value,
-		u32 TimeOutUs)
-{
-	XAie_CdoIO *CdoIOInst = (XAie_CdoIO *)IOInst;
-	/* Round up to msec */
-	cdo_MaskPoll(CdoIOInst->BaseAddr + RegOff, Mask, Value,
-			(TimeOutUs + 999) / 1000);
-	return XAIE_OK;
-}
-
-/*****************************************************************************/
-/**
-*
-* This is the memory IO function to write a block of data to aie.
-*
-* @param	IOInst: IO instance pointer
-* @param	RegOff: Register offset to read from.
-* @param	Data: Pointer to the data buffer.
-* @param	Size: Number of 32-bit words.
-*
-* @return	None.
-*
-* @note		None.
-* @note		Internal only.
-*
-*******************************************************************************/
-static AieRC XAie_CdoIO_BlockWrite32(void *IOInst, u64 RegOff, const u32 *Data,
-		u32 Size)
-{
-	XAie_CdoIO *CdoIOInst = (XAie_CdoIO *)IOInst;
-
-	cdo_BlockWrite32(CdoIOInst->BaseAddr + RegOff, Data, Size);
-
-	return XAIE_OK;
-}
-
-/*****************************************************************************/
-/**
-*
-* This is the memory IO function to initialize a chunk of aie address space with
-* a specified value.
-*
-* @param	IOInst: IO instance pointer
-* @param	RegOff: Register offset to read from.
-* @param	Data: Data to initialize a chunk of aie address space..
-* @param	Size: Number of 32-bit words.
-*
-* @return	None.
-*
-* @note		None.
-* @note		Internal only.
-*
-*******************************************************************************/
-static AieRC XAie_CdoIO_BlockSet32(void *IOInst, u64 RegOff, u32 Data, u32 Size)
-{
-	XAie_CdoIO *CdoIOInst = (XAie_CdoIO *)IOInst;
-
-	cdo_BlockSet32(CdoIOInst->BaseAddr + RegOff, Data, Size);
-
-	return XAIE_OK;
-}
-
-/*****************************************************************************/
-/**
-*
-* This is the function to write 32 bit value to NPI register address.
-*
-* @param	IOInst: IO instance pointer
-* @param	RegOff: NPI register offset
-* @param	RegVal: Value to write to register
-*
-* @return	None.
-*
-* @note		None.
-* @note		Internal only.
-*
-*******************************************************************************/
-static void _XAie_CdoIO_NpiWrite32(void *IOInst, u32 RegOff, u32 RegVal)
-{
-	XAie_CdoIO *CdoIOInst = (XAie_CdoIO *)IOInst;
-	u64 RegAddr;
-
-	RegAddr = CdoIOInst->NpiBaseAddr + RegOff;
-	cdo_Write32(RegAddr, RegVal);
-	return;
-}
-
-/*****************************************************************************/
-/**
-*
-* This is the memory IO function to mask poll a NPI address for a value.
-*
-* @param	IOInst: IO instance pointer
-* @param	RegOff: Register offset to read from.
-* @param	Mask: Mask to be applied to Data.
-* @param	Value: 32-bit value to poll for
-* @param	TimeOutUs: Timeout in micro seconds.
-*
-* @return	XAIE_OK or XAIE_ERR.
-*
-* @note		None.
-* @note		Internal only.
-*
-*******************************************************************************/
-static AieRC _XAie_CdoIO_NpiMaskPoll(void *IOInst, u64 RegOff, u32 Mask,
-		u32 Value, u32 TimeOutUs)
-{
-	XAie_CdoIO *CdoIOInst = (XAie_CdoIO *)IOInst;
-	/* Round up to msec */
-	cdo_MaskPoll(CdoIOInst->NpiBaseAddr + RegOff, Mask, Value,
-			(TimeOutUs + 999) / 1000);
 	return XAIE_OK;
 }
 
@@ -324,21 +143,6 @@ static AieRC XAie_CdoIO_RunOp(void *IOInst, XAie_DevInst *DevInst,
 	(void)IOInst;
 
 	switch(Op) {
-		case XAIE_BACKEND_OP_NPIWR32:
-		{
-			XAie_BackendNpiWrReq *Req = Arg;
-
-			_XAie_CdoIO_NpiWrite32(IOInst, Req->NpiRegOff,
-					Req->Val);
-			break;
-		}
-		case XAIE_BACKEND_OP_NPIMASKPOLL32:
-		{
-			XAie_BackendNpiMaskPollReq *Req = Arg;
-
-			return _XAie_CdoIO_NpiMaskPoll(IOInst, Req->NpiRegOff,
-					Req->Mask, Req->Val, Req->TimeOutUs);
-		}
 		case XAIE_BACKEND_OP_ASSERT_SHIMRST:
 		{
 			u8 RstEnable = (u8)((uintptr_t)Arg & 0xFF);
@@ -349,15 +153,6 @@ static AieRC XAie_CdoIO_RunOp(void *IOInst, XAie_DevInst *DevInst,
 		case XAIE_BACKEND_OP_SET_PROTREG:
 		{
 			RC = _XAie_NpiSetProtectedRegEnable(DevInst, Arg);
-			break;
-		}
-		case XAIE_BACKEND_OP_CONFIG_SHIMDMABD:
-		{
-			XAie_ShimDmaBdArgs *BdArgs =
-				(XAie_ShimDmaBdArgs *)Arg;
-
-			XAie_CdoIO_BlockWrite32(IOInst, BdArgs->Addr,
-				BdArgs->BdWords, BdArgs->NumBdWords);
 			break;
 		}
 		case XAIE_BACKEND_OP_REQUEST_TILES:
@@ -554,14 +349,8 @@ const XAie_Backend CdoBackend =
 	.Type = XAIE_IO_BACKEND_CDO,
 	.Ops.Init = XAie_CdoIO_Init,
 	.Ops.Finish = XAie_CdoIO_Finish,
-	.Ops.Write32 = XAie_CdoIO_Write32,
 	.Ops.Read32 = XAie_CdoIO_Read32,
-	.Ops.MaskWrite32 = XAie_CdoIO_MaskWrite32,
-	.Ops.MaskPoll = XAie_CdoIO_MaskPoll,
-	.Ops.BlockWrite32 = XAie_CdoIO_BlockWrite32,
-	.Ops.BlockSet32 = XAie_CdoIO_BlockSet32,
 	.Ops.CmdWrite = XAie_CdoIO_CmdWrite,
-	.Ops.RunOp = XAie_CdoIO_RunOp,
 	.Ops.MemAllocate = XAie_CdoMemAllocate,
 	.Ops.MemFree = XAie_CdoMemFree,
 	.Ops.MemSyncForCPU = XAie_CdoMemSyncForCPU,
