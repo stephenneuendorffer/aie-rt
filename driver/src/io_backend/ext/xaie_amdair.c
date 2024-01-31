@@ -25,9 +25,9 @@
 typedef struct {
 	u64 BaseAddr;
 	u64 NpiBaseAddr;
-	char *AmdairAddress;
-	char *AmdairValue;
-} XAie_AmdairIO;
+	char *AmdAirAddress;
+	char *AmdAirValue;
+} XAie_AmdAirIO;
 
 /************************** Function Definitions *****************************/
 /*****************************************************************************/
@@ -43,11 +43,11 @@ typedef struct {
 * the reference count reaches a zero.
 *
 *******************************************************************************/
-static AieRC XAie_AmdairIO_Finish(void *IOInst)
+static AieRC XAie_AmdAirIO_Finish(void *IOInst)
 {
-	XAie_AmdairIO *DevInst = (XAie_AmdairIO *)IOInst;
-	free(DevInst->AmdairAddress);
-	free(DevInst->AmdairValue);
+	XAie_AmdAirIO *DevInst = (XAie_AmdAirIO *)IOInst;
+	free(DevInst->AmdAirAddress);
+	free(DevInst->AmdAirValue);
 	free(DevInst);
 
 	return XAIE_OK;
@@ -65,11 +65,11 @@ static AieRC XAie_AmdairIO_Finish(void *IOInst)
 * @note		None.
 *
 *******************************************************************************/
-static AieRC XAie_AmdairIO_Init(XAie_DevInst *DevInst)
+static AieRC XAie_AmdAirIO_Init(XAie_DevInst *DevInst)
 {
-	XAie_AmdairIO *IOInst;
+	XAie_AmdAirIO *IOInst;
 
-	IOInst = (XAie_AmdairIO *)malloc(sizeof(*IOInst));
+	IOInst = (XAie_AmdAirIO *)malloc(sizeof(*IOInst));
 	if(IOInst == NULL) {
 		XAIE_ERROR("Memory allocation failed\n");
 		return XAIE_ERR;
@@ -84,11 +84,11 @@ static AieRC XAie_AmdairIO_Init(XAie_DevInst *DevInst)
 	IOInst->BaseAddr = DevInst->BaseAddr;
 	IOInst->NpiBaseAddr = XAIE_NPI_BASEADDR;
 
-	IOInst->AmdairAddress= malloc(strlen((const char *)DevInst->IOInst) + strlen("/address") + 1);
-	sprintf(IOInst->AmdairAddress, "%s/address", (const char *)DevInst->IOInst);
+	IOInst->AmdAirAddress = malloc(strlen((const char *)DevInst->IOInst) + strlen("/address") + 1);
+	sprintf(IOInst->AmdAirAddress, "%s/address", (const char *)DevInst->IOInst);
 
-	IOInst->AmdairValue = malloc(strlen((const char *)DevInst->IOInst) + strlen("/value") + 1);
-	sprintf(IOInst->AmdairValue, "%s/value", (const char *)DevInst->IOInst);
+	IOInst->AmdAirValue = malloc(strlen((const char *)DevInst->IOInst) + strlen("/value") + 1);
+	sprintf(IOInst->AmdAirValue, "%s/value", (const char *)DevInst->IOInst);
 
 	DevInst->IOInst = IOInst;
 
@@ -109,25 +109,25 @@ static AieRC XAie_AmdairIO_Init(XAie_DevInst *DevInst)
 * @note		None.
 *
 *******************************************************************************/
-static AieRC XAie_AmdairIO_Write32(void *IOInst, u64 RegOff, u32 Value)
+static AieRC XAie_AmdAirIO_Write32(void *IOInst, u64 RegOff, u32 Value)
 {
 	char buf[20];
-	XAie_AmdairIO *AmdairIOInst = (XAie_AmdairIO *)IOInst;
+	XAie_AmdAirIO *AmdAirIOInst = (XAie_AmdAirIO *)IOInst;
 
 	XAIE_DBG("W: 0x%lx, 0x%x\n", RegOff, Value);
 
-	int address = open(AmdairIOInst->AmdairAddress, O_WRONLY);
+	int address = open(AmdAirIOInst->AmdAirAddress, O_WRONLY);
 	if (address == -1) {
-		XAIE_ERROR("Error opening %s\n", AmdairIOInst->AmdairAddress);
+		XAIE_ERROR("Error opening %s\n", AmdAirIOInst->AmdAirAddress);
 		return XAIE_ERR;
 	}
 	sprintf(buf, "0x%lx", RegOff);
 	write(address, buf, strlen(buf) + 1);
 	close(address);
 
-	int value = open(AmdairIOInst->AmdairValue, O_WRONLY);
+	int value = open(AmdAirIOInst->AmdAirValue, O_WRONLY);
 	if (value == -1) {
-		XAIE_ERROR("Error opening %s\n", AmdairIOInst->AmdairValue);
+		XAIE_ERROR("Error opening %s\n", AmdAirIOInst->AmdAirValue);
 		return XAIE_ERR;
 	}
 	sprintf(buf, "0x%x", Value);
@@ -151,23 +151,23 @@ static AieRC XAie_AmdairIO_Write32(void *IOInst, u64 RegOff, u32 Value)
 * @note		None.
 *
 *******************************************************************************/
-static AieRC XAie_AmdairIO_Read32(void *IOInst, u64 RegOff, u32 *Data)
+static AieRC XAie_AmdAirIO_Read32(void *IOInst, u64 RegOff, u32 *Data)
 {
 	char buf[20];
-	XAie_AmdairIO *AmdairIOInst = (XAie_AmdairIO *)IOInst;
+	XAie_AmdAirIO *AmdAirIOInst = (XAie_AmdAirIO *)IOInst;
 
-	int address = open(AmdairIOInst->AmdairAddress, O_WRONLY);
+	int address = open(AmdAirIOInst->AmdAirAddress, O_WRONLY);
 	if (address == -1) {
-		XAIE_ERROR("Error opening %s\n", AmdairIOInst->AmdairAddress);
+		XAIE_ERROR("Error opening %s\n", AmdAirIOInst->AmdAirAddress);
 		return XAIE_ERR;
 	}
 	sprintf(buf, "0x%lx", RegOff);
 	write(address, buf, strlen(buf) + 1);
 	close(address);
 
-	int value = open(AmdairIOInst->AmdairValue, O_RDONLY);
+	int value = open(AmdAirIOInst->AmdAirValue, O_RDONLY);
 	if (value == -1) {
-		XAIE_ERROR("Error opening %s\n", AmdairIOInst->AmdairValue);
+		XAIE_ERROR("Error opening %s\n", AmdAirIOInst->AmdAirValue);
 		return XAIE_ERR;
 	}
 	read(value, buf, strlen(buf) + 1);
@@ -196,17 +196,19 @@ static AieRC XAie_AmdairIO_Read32(void *IOInst, u64 RegOff, u32 *Data)
 * @note		None.
 *
 *******************************************************************************/
-static AieRC XAie_AmdairIO_MaskWrite32(void *IOInst, u64 RegOff, u32 Mask,
+static AieRC XAie_AmdAirIO_MaskWrite32(void *IOInst, u64 RegOff, u32 Mask,
 		u32 Value)
 {
 	u32 RegVal;
 
-	AieRC rc = XAie_AmdairIO_Read32(IOInst, RegOff, &RegVal);
-	if (rc != XAIE_OK)
+	AieRC rc = XAie_AmdAirIO_Read32(IOInst, RegOff, &RegVal);
+	if (rc != XAIE_OK) {
+		XAIE_ERROR("Failed to perform Read32 during MaskWrite32 operation\n");
 		return rc;
+  }
 
 	RegVal &= ~Mask;
-	return XAie_AmdairIO_Write32(IOInst, RegOff, (RegVal | Value));
+	return XAie_AmdAirIO_Write32(IOInst, RegOff, (RegVal | Value));
 }
 
 /*****************************************************************************/
@@ -225,18 +227,18 @@ static AieRC XAie_AmdairIO_MaskWrite32(void *IOInst, u64 RegOff, u32 Mask,
 * @note		None.
 *
 *******************************************************************************/
-static AieRC XAie_AmdairIO_MaskPoll(void *IOInst, u64 RegOff, u32 Mask, u32 Value,
+static AieRC XAie_AmdAirIO_MaskPoll(void *IOInst, u64 RegOff, u32 Mask, u32 Value,
 		u32 TimeOutUs)
 {
 	u32 Count, RegVal;
 	u32 MinTimeOutUs = 200;
-	XAie_AmdairIO *AmdairIOInst = (XAie_AmdairIO *)IOInst;
+	XAie_AmdAirIO *AmdAirIOInst = (XAie_AmdAirIO *)IOInst;
 	AieRC Ret = XAIE_ERR;
 
 	XAIE_DBG("MP: 0x%lx, 0x%x, 0x%x, %u\n", RegOff, Mask, Value, TimeOutUs);
 
 	do {
-		XAie_AmdairIO_Read32(IOInst, RegOff, &RegVal);
+		XAie_AmdAirIO_Read32(IOInst, RegOff, &RegVal);
 		if((RegVal & Mask) == Value) {
 			Ret = XAIE_OK;
 			break;
@@ -266,11 +268,11 @@ static AieRC XAie_AmdairIO_MaskPoll(void *IOInst, u64 RegOff, u32 Mask, u32 Valu
 * @note		None.
 *
 *******************************************************************************/
-static AieRC XAie_AmdairIO_BlockWrite32(void *IOInst, u64 RegOff,
+static AieRC XAie_AmdAirIO_BlockWrite32(void *IOInst, u64 RegOff,
 		const u32 *Data, u32 Size)
 {
 	for(u32 i = 0U; i < Size; i ++) {
-		XAie_AmdairIO_Write32(IOInst, RegOff + i * 4U, *Data);
+		XAie_AmdAirIO_Write32(IOInst, RegOff + i * 4U, *Data);
 		Data++;
 	}
 
@@ -293,16 +295,16 @@ static AieRC XAie_AmdairIO_BlockWrite32(void *IOInst, u64 RegOff,
 * @note		None.
 *
 *******************************************************************************/
-static AieRC XAie_AmdairIO_BlockSet32(void *IOInst, u64 RegOff, u32 Data,
+static AieRC XAie_AmdAirIO_BlockSet32(void *IOInst, u64 RegOff, u32 Data,
 		u32 Size)
 {
 	for(u32 i = 0U; i < Size; i++)
-		XAie_AmdairIO_Write32(IOInst, RegOff+ i * 4U, Data);
+		XAie_AmdAirIO_Write32(IOInst, RegOff+ i * 4U, Data);
 
 	return XAIE_OK;
 }
 
-static AieRC XAie_AmdairIO_CmdWrite(void *IOInst, u8 Col, u8 Row, u8 Command,
+static AieRC XAie_AmdAirIO_CmdWrite(void *IOInst, u8 Col, u8 Row, u8 Command,
 		u32 CmdWd0, u32 CmdWd1, const char *CmdStr)
 {
 	XAIE_DBG("%s not implemented\n", __func__);
@@ -333,16 +335,16 @@ static AieRC XAie_AmdairIO_CmdWrite(void *IOInst, u8 Col, u8 Row, u8 Command,
 * @note		None.
 *
 *******************************************************************************/
-static void _XAie_AmdairIO_NpiWrite32(void *IOInst, u32 RegOff,
+static void _XAie_AmdAirIO_NpiWrite32(void *IOInst, u32 RegOff,
 		u32 RegVal)
 {
-	XAie_AmdairIO *AmdairIOInst = (XAie_AmdairIO *)IOInst;
+	XAie_AmdAirIO *AmdAirIOInst = (XAie_AmdAirIO *)IOInst;
 	u64 RegAddr;
 
 	XAIE_DBG("NPIMW: 0x%lx, 0x%x\n", RegAddr, RegVal);
 	XAIE_DBG("NPIMW not implemented\n");
 
-	RegAddr = AmdairIOInst->NpiBaseAddr + RegOff;
+	RegAddr = AmdAirIOInst->NpiBaseAddr + RegOff;
 }
 
 /*****************************************************************************/
@@ -361,12 +363,12 @@ static void _XAie_AmdairIO_NpiWrite32(void *IOInst, u32 RegOff,
 * @note		None.
 *
 *******************************************************************************/
-static AieRC _XAie_AmdairIO_NpiMaskPoll(void *IOInst, u64 RegOff, u32 Mask,
+static AieRC _XAie_AmdAirIO_NpiMaskPoll(void *IOInst, u64 RegOff, u32 Mask,
 		u32 Value, u32 TimeOutUs)
 {
-	XAie_AmdairIO *AmdairIOInst = (XAie_AmdairIO *)IOInst;
+	XAie_AmdAirIO *AmdAirIOInst = (XAie_AmdAirIO *)IOInst;
 
-	XAIE_DBG("NPIMP: 0x%lx, 0x%x, 0x%x, 0x%d\n", AmdairIOInst->NpiBaseAddr + RegOff,
+	XAIE_DBG("NPIMP: 0x%lx, 0x%x, 0x%x, 0x%d\n", AmdAirIOInst->NpiBaseAddr + RegOff,
 			Mask, Value, TimeOutUs);
 
 	return XAIE_OK;
@@ -388,7 +390,7 @@ static AieRC _XAie_AmdairIO_NpiMaskPoll(void *IOInst, u64 RegOff, u32 Mask,
 * @note		None.
 *
 *******************************************************************************/
-static AieRC XAie_AmdairIO_RunOp(void *IOInst, XAie_DevInst *DevInst,
+static AieRC XAie_AmdAirIO_RunOp(void *IOInst, XAie_DevInst *DevInst,
 		     XAie_BackendOpCode Op, void *Arg)
 {
 	AieRC RC = XAIE_OK;
@@ -400,7 +402,7 @@ static AieRC XAie_AmdairIO_RunOp(void *IOInst, XAie_DevInst *DevInst,
 		{
 			XAie_BackendNpiWrReq *Req = Arg;
 
-			_XAie_AmdairIO_NpiWrite32(IOInst, Req->NpiRegOff,
+			_XAie_AmdAirIO_NpiWrite32(IOInst, Req->NpiRegOff,
 					Req->Val);
 			break;
 		}
@@ -408,7 +410,7 @@ static AieRC XAie_AmdairIO_RunOp(void *IOInst, XAie_DevInst *DevInst,
 		{
 			XAie_BackendNpiMaskPollReq *Req = Arg;
 
-			return _XAie_AmdairIO_NpiMaskPoll(IOInst, Req->NpiRegOff,
+			return _XAie_AmdAirIO_NpiMaskPoll(IOInst, Req->NpiRegOff,
 					Req->Mask, Req->Val, Req->TimeOutUs);
 		}
 		case XAIE_BACKEND_OP_ASSERT_SHIMRST:
@@ -427,7 +429,7 @@ static AieRC XAie_AmdairIO_RunOp(void *IOInst, XAie_DevInst *DevInst,
 		{
 			XAie_ShimDmaBdArgs *BdArgs = (XAie_ShimDmaBdArgs *)Arg;
 			for(u8 i = 0; i < BdArgs->NumBdWords; i++) {
-				XAie_AmdairIO_Write32(IOInst,
+				XAie_AmdAirIO_Write32(IOInst,
 						BdArgs->Addr + i * 4,
 						BdArgs->BdWords[i]);
 			}
@@ -474,7 +476,7 @@ static AieRC XAie_AmdairIO_RunOp(void *IOInst, XAie_DevInst *DevInst,
 * @note		Internal only.
 *
 *******************************************************************************/
-static XAie_MemInst* XAie_AmdairMemAllocate(XAie_DevInst *DevInst, u64 Size,
+static XAie_MemInst* XAie_AmdAirMemAllocate(XAie_DevInst *DevInst, u64 Size,
 		XAie_MemCacheProp Cache)
 {
 	XAie_MemInst *MemInst;
@@ -514,7 +516,7 @@ static XAie_MemInst* XAie_AmdairMemAllocate(XAie_DevInst *DevInst, u64 Size,
 * @note		Internal only.
 *
 *******************************************************************************/
-static AieRC XAie_AmdairMemFree(XAie_MemInst *MemInst)
+static AieRC XAie_AmdAirMemFree(XAie_MemInst *MemInst)
 {
 	XAIE_DBG("%s\n", __func__);
 	free(MemInst->VAddr);
@@ -535,7 +537,7 @@ static AieRC XAie_AmdairMemFree(XAie_MemInst *MemInst)
 * @note		Internal only.
 *
 *******************************************************************************/
-static AieRC XAie_AmdairMemSyncForCPU(XAie_MemInst *MemInst)
+static AieRC XAie_AmdAirMemSyncForCPU(XAie_MemInst *MemInst)
 {
 	(void)MemInst;
 	XAIE_DBG("Sync for CPU is no-op in debug mode\n");
@@ -555,7 +557,7 @@ static AieRC XAie_AmdairMemSyncForCPU(XAie_MemInst *MemInst)
 * @note		Internal only.
 *
 *******************************************************************************/
-static AieRC XAie_AmdairMemSyncForDev(XAie_MemInst *MemInst)
+static AieRC XAie_AmdAirMemSyncForDev(XAie_MemInst *MemInst)
 {
 	(void)MemInst;
 	XAIE_DBG("Sync for Dev is no-op in debug mode\n");
@@ -563,7 +565,7 @@ static AieRC XAie_AmdairMemSyncForDev(XAie_MemInst *MemInst)
 	return XAIE_OK;
 }
 
-static AieRC XAie_AmdairMemAttach(XAie_MemInst *MemInst, u64 MemHandle)
+static AieRC XAie_AmdAirMemAttach(XAie_MemInst *MemInst, u64 MemHandle)
 {
 	(void)MemInst;
 	(void)MemHandle;
@@ -572,7 +574,7 @@ static AieRC XAie_AmdairMemAttach(XAie_MemInst *MemInst, u64 MemHandle)
 	return XAIE_OK;
 }
 
-static AieRC XAie_AmdairMemDetach(XAie_MemInst *MemInst)
+static AieRC XAie_AmdAirMemDetach(XAie_MemInst *MemInst)
 {
 	(void)MemInst;
 	XAIE_DBG("Mem detach is no-op in debug mode\n");
@@ -580,7 +582,7 @@ static AieRC XAie_AmdairMemDetach(XAie_MemInst *MemInst)
 	return XAIE_OK;
 }
 
-static u64 XAie_AmdairGetTid(void)
+static u64 XAie_AmdAirGetTid(void)
 {
 #ifdef __linux__
 	return (u64)pthread_self();
@@ -589,26 +591,26 @@ static u64 XAie_AmdairGetTid(void)
 #endif
 }
 
-const XAie_Backend AmdairBackend =
+const XAie_Backend AmdAirBackend =
 {
 	.Type = XAIE_IO_BACKEND_AMDAIR,
-	.Ops.Init = XAie_AmdairIO_Init,
-	.Ops.Finish = XAie_AmdairIO_Finish,
-	.Ops.Write32 = XAie_AmdairIO_Write32,
-	.Ops.Read32 = XAie_AmdairIO_Read32,
-	.Ops.MaskWrite32 = XAie_AmdairIO_MaskWrite32,
-	.Ops.MaskPoll = XAie_AmdairIO_MaskPoll,
-	.Ops.BlockWrite32 = XAie_AmdairIO_BlockWrite32,
-	.Ops.BlockSet32 = XAie_AmdairIO_BlockSet32,
-	.Ops.CmdWrite = XAie_AmdairIO_CmdWrite,
-	.Ops.RunOp = XAie_AmdairIO_RunOp,
-	.Ops.MemAllocate = XAie_AmdairMemAllocate,
-	.Ops.MemFree = XAie_AmdairMemFree,
-	.Ops.MemSyncForCPU = XAie_AmdairMemSyncForCPU,
-	.Ops.MemSyncForDev = XAie_AmdairMemSyncForDev,
-	.Ops.MemAttach = XAie_AmdairMemAttach,
-	.Ops.MemDetach = XAie_AmdairMemDetach,
-	.Ops.GetTid = XAie_AmdairGetTid,
+	.Ops.Init = XAie_AmdAirIO_Init,
+	.Ops.Finish = XAie_AmdAirIO_Finish,
+	.Ops.Write32 = XAie_AmdAirIO_Write32,
+	.Ops.Read32 = XAie_AmdAirIO_Read32,
+	.Ops.MaskWrite32 = XAie_AmdAirIO_MaskWrite32,
+	.Ops.MaskPoll = XAie_AmdAirIO_MaskPoll,
+	.Ops.BlockWrite32 = XAie_AmdAirIO_BlockWrite32,
+	.Ops.BlockSet32 = XAie_AmdAirIO_BlockSet32,
+	.Ops.CmdWrite = XAie_AmdAirIO_CmdWrite,
+	.Ops.RunOp = XAie_AmdAirIO_RunOp,
+	.Ops.MemAllocate = XAie_AmdAirMemAllocate,
+	.Ops.MemFree = XAie_AmdAirMemFree,
+	.Ops.MemSyncForCPU = XAie_AmdAirMemSyncForCPU,
+	.Ops.MemSyncForDev = XAie_AmdAirMemSyncForDev,
+	.Ops.MemAttach = XAie_AmdAirMemAttach,
+	.Ops.MemDetach = XAie_AmdAirMemDetach,
+	.Ops.GetTid = XAie_AmdAirGetTid,
 	.Ops.SubmitTxn = NULL,
 };
 
