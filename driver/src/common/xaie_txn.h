@@ -42,7 +42,8 @@ typedef enum {
 	XAIE_IO_CUSTOM_OP_RECORD_TIMER, // Previously this was XAIE_IO_CUSTOM_OP_BEGIN + 3
 	XAIE_IO_CUSTOM_OP_MERGE_SYNC, // Previously this was XAIE_IO_CUSTOM_OP_BEGIN + 4
 	XAIE_IO_CUSTOM_OP_NEXT,
-	XAIE_IO_CUSTOM_OP_MAX = UCHAR_MAX,
+	/* add new op here */
+	XAIE_IO_CUSTOM_OP_MAX
 } XAie_TxnOpcode;
 
 struct XAie_TxnCmd {
