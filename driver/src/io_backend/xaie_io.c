@@ -85,11 +85,7 @@
 #else
 	#define AMDAIRBACKEND NULL
 #endif
-#if defined (__AIEDEBUG__)
-	#define DEBUGBACKEND &DebugBackend
-#else
-	#define DEBUGBACKEND NULL
-#endif
+#define DEBUGBACKEND &DebugBackend
 
 /************************** Variable Definitions *****************************/
 extern const XAie_Backend MetalBackend;
