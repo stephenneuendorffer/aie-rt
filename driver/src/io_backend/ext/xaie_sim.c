@@ -37,7 +37,14 @@
 
 #ifdef __AIESIM__ /* AIE simulator */
 
-#include "main_rts.h"
+#include <stdint.h>
+typedef unsigned int uint;
+
+void ess_Write32(uint64_t Addr, uint Data);
+uint ess_Read32(uint64_t Addr);
+
+void ess_NpiWrite32(uint64_t Addr, uint Data);
+uint ess_NpiRead32(uint64_t Addr);
 
 #endif
 
