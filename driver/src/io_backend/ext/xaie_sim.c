@@ -32,13 +32,13 @@
 #include <windows.h>
 #else
 #include <pthread.h>
+#include <unistd.h>
 #endif
 #endif
 
 #ifdef __AIESIM__ /* AIE simulator */
 
 #include <stdint.h>
-#include <unistd.h>
 
 typedef unsigned int uint;
 
